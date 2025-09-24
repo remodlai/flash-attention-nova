@@ -1,5 +1,5 @@
 #
-# This file is copied verbatim from vLLM:
+# This file is copied verbatim from Nova:
 # https://github.com/vllm-project/vllm/blob/main/tests/kernels/test_flash_attn.py
 #
 
@@ -10,7 +10,7 @@ import pytest
 import torch
 from einops import rearrange, repeat
 
-from vllm_flash_attn.flash_attn_interface import (
+from nova_flash_attn.flash_attn_interface import (
     flash_attn_varlen_func,
     flash_attn_with_kvcache,
     get_scheduler_metadata,
@@ -414,7 +414,7 @@ def test_sparse_attention(
     column_count = torch.tensor([NNZ_V] * batch_size * NUM_ROWS * num_heads, dtype=torch.int32).reshape(batch_size, num_heads, NUM_ROWS)
     block_offset = torch.tensor([[i * block_size_N for i in range(NNZ_S)]] * batch_size * NUM_ROWS * num_heads, dtype=torch.int32).reshape(batch_size, num_heads, NUM_ROWS, NNZ_S)
     column_index = torch.tensor([[NNZ_S * block_size_N + i for i in range(NNZ_V)]] * batch_size * NUM_ROWS * num_heads, dtype=torch.int32).reshape(batch_size, num_heads, NUM_ROWS, NNZ_V)
-    from vllm_flash_attn import sparse_attn_func
+    from nova_flash_attn import sparse_attn_func
     out, lse = sparse_attn_func(
         q,
         k,
@@ -491,7 +491,7 @@ def test_sparse_attention_varlen(
     column_count = torch.concat(column_counts).reshape(batch_size, num_heads, NUM_ROWS)
     block_offset = torch.concat(block_offsets).reshape(batch_size, num_heads, NUM_ROWS, NNZ_S)
     column_index = torch.concat(column_indices).reshape(batch_size, num_heads, NUM_ROWS, NNZ_V)
-    from vllm_flash_attn import sparse_attn_varlen_func, flash_attn_varlen_func
+    from nova_flash_attn import sparse_attn_varlen_func, flash_attn_varlen_func
     out, lse = sparse_attn_varlen_func(
         query,
         key,

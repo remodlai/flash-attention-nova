@@ -24,12 +24,12 @@ from setuptools.command.build_ext import build_ext
 logger = logging.getLogger(__name__)
 
 # Enivronment variables
-Envs = namedtuple("Envs", ["VERBOSE", "MAX_JOBS", "NVCC_THREADS", "VLLM_TARGET_DEVICE", "CMAKE_BUILD_TYPE"])
+Envs = namedtuple("Envs", ["VERBOSE", "MAX_JOBS", "NVCC_THREADS", "NOVA_TARGET_DEVICE", "CMAKE_BUILD_TYPE"])
 envs = Envs(
     VERBOSE=bool(int(os.getenv("VERBOSE", "0"))),
     MAX_JOBS=os.getenv("MAX_JOBS"),
     NVCC_THREADS=os.getenv("NVCC_THREADS"),
-    VLLM_TARGET_DEVICE=os.getenv("VLLM_TARGET_DEVICE", "cuda"),
+    NOVA_TARGET_DEVICE=os.getenv("NOVA_TARGET_DEVICE", "cuda"),
     CMAKE_BUILD_TYPE=os.getenv("CMAKE_BUILD_TYPE"),
 )
 
@@ -39,7 +39,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 # ninja build does not work unless include_dirs are abs path
 this_dir = os.path.dirname(os.path.abspath(__file__))
 
-PACKAGE_NAME = "vllm_flash_attn"
+PACKAGE_NAME = "nova_flash_attn"
 
 cmdclass = {}
 ext_modules = []
@@ -66,17 +66,17 @@ def remove_prefix(text, prefix):
     return text
 
 
-VLLM_TARGET_DEVICE = envs.VLLM_TARGET_DEVICE
+NOVA_TARGET_DEVICE = envs.NOVA_TARGET_DEVICE
 
 
 def _is_cuda() -> bool:
     has_cuda = torch.version.cuda is not None
-    return VLLM_TARGET_DEVICE == "cuda" and has_cuda
+    return NOVA_TARGET_DEVICE == "cuda" and has_cuda
 
 
 def _is_hip() -> bool:
-    return (VLLM_TARGET_DEVICE == "cuda"
-            or VLLM_TARGET_DEVICE == "rocm") and torch.version.hip is not None
+    return (NOVA_TARGET_DEVICE == "cuda"
+            or NOVA_TARGET_DEVICE == "rocm") and torch.version.hip is not None
 
 
 class CMakeExtension(Extension):
@@ -144,7 +144,7 @@ class cmake_build_ext(build_ext):
 
         cmake_args = [
             '-DCMAKE_BUILD_TYPE={}'.format(cfg),
-            '-DVLLM_TARGET_DEVICE={}'.format(VLLM_TARGET_DEVICE),
+            '-DNOVA_TARGET_DEVICE={}'.format(NOVA_TARGET_DEVICE),
         ]
 
         verbose = envs.VERBOSE
@@ -169,7 +169,7 @@ class cmake_build_ext(build_ext):
 
         # Pass the python path to cmake so it can reuse the build dependencies
         # on subsequent calls to python.
-        cmake_args += ['-DVLLM_PYTHON_PATH={}'.format(":".join(sys.path))]
+        cmake_args += ['-DNOVA_PYTHON_PATH={}'.format(":".join(sys.path))]
 
         #
         # Setup parallelism and build tool
@@ -204,7 +204,7 @@ class cmake_build_ext(build_ext):
             os.makedirs(self.build_temp)
 
         targets = []
-        target_name = lambda s: remove_prefix(s, "vllm_flash_attn.")
+        target_name = lambda s: remove_prefix(s, "nova_flash_attn.")
         # Build all the extensions
         for ext in self.extensions:
             self.configure(ext)
@@ -282,11 +282,11 @@ def get_version() -> str:
     return version
 
 
-ext_modules.append(CMakeExtension(name="vllm_flash_attn._vllm_fa2_C"))
-ext_modules.append(CMakeExtension(name="vllm_flash_attn._vllm_fa3_C"))
+ext_modules.append(CMakeExtension(name="nova_flash_attn._nova_fa2_C"))
+ext_modules.append(CMakeExtension(name="nova_flash_attn._nova_fa3_C"))
 
 setup(
-    name="vllm-flash-attn",
+    name="nova-flash-attn",
     version=get_version(),
     packages=find_packages(exclude=("build",
                                     "csrc",
@@ -296,10 +296,10 @@ setup(
                                     "docs",
                                     "benchmarks",
                                     f"{PACKAGE_NAME}.egg-info",)),
-    author="vLLM Team",
+    author="Remodl AI Team",
     description="Forward-only flash-attn",
-    long_description=f"Forward-only flash-attn package built for PyTorch {PYTORCH_VERSION} and CUDA {MAIN_CUDA_VERSION}",
-    url="https://github.com/vllm-project/flash-attention.git",
+    long_description=f"Forward-only flash-attn package built for LexiqNova for PyTorch {PYTORCH_VERSION} and CUDA {MAIN_CUDA_VERSION}",
+    url="https://github.com/remodlai/flash-attention-nova.git",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: BSD License",
