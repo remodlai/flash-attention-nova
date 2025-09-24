@@ -1,22 +1,22 @@
 cmake_minimum_required(VERSION 3.26)
 
-project(vllm_flash_attn LANGUAGES CXX CUDA)
+project(nova_flash_attn LANGUAGES CXX CUDA)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 set(FA2_ENABLED ON)
 set(FA3_ENABLED ON)
 
-# CUDA by default, can be overridden by using -DVLLM_TARGET_DEVICE=... (used by setup.py)
-set(VLLM_TARGET_DEVICE "cuda" CACHE STRING "Target device backend for vLLM")
+# CUDA by default, can be overridden by using -DNOVA_TARGET_DEVICE=... (used by setup.py)
+set(NOVA_TARGET_DEVICE "cuda" CACHE STRING "Target device backend for LexiqNova")
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
-message(STATUS "Target device: ${VLLM_TARGET_DEVICE}")
+message(STATUS "Target device: ${NOVA_TARGET_DEVICE}")
 
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/utils.cmake)
 
 # Suppress potential warnings about unused manually-specified variables
-set(ignoreMe "${VLLM_PYTHON_PATH}")
+set(ignoreMe "${NOVA_PYTHON_PATH}")
 
 # Supported python versions. These should be kept in sync with setup.py.
 set(PYTHON_SUPPORTED_VERSIONS "3.9" "3.10" "3.11" "3.12" "3.13")
@@ -28,7 +28,7 @@ if(${CMAKE_CUDA_COMPILER_VERSION} VERSION_GREATER_EQUAL 12.8)
 endif()
 
 # Supported AMD GPU architectures.
-set(HIP_SUPPORTED_ARCHS "gfx906;gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030;gfx1100")
+# set(HIP_SUPPORTED_ARCHS "gfx906;gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030;gfx1100")
 
 #
 # Supported/expected torch versions for CUDA/ROCm.
@@ -37,7 +37,7 @@ set(HIP_SUPPORTED_ARCHS "gfx906;gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030;gfx11
 # rather than an error.
 #
 # Note: these should be kept in sync with the torch version in setup.py.
-# Likely should also be in sync with the vLLM version.
+# Likely should also be in sync with the Nova version.
 #
 set(TORCH_SUPPORTED_VERSION_CUDA "2.4.0")
 
@@ -64,7 +64,7 @@ endif()
 # what is expected.
 #
 if (NOT HIP_FOUND AND CUDA_FOUND)
-    set(VLLM_GPU_LANG "CUDA")
+    set(NOVA_GPU_LANG "CUDA")
 
     # Check CUDA is at least 11.6
     if (CUDA_VERSION VERSION_LESS 11.6)
@@ -94,34 +94,34 @@ if (NOT HIP_FOUND AND CUDA_FOUND)
         "${CUDA_SUPPORTED_ARCHS}" "${CUDA_ARCHS}")
     message(STATUS "CUDA supported target architectures: ${CUDA_ARCHS}")
 elseif (HIP_FOUND)
-    message(FATAL_ERROR "ROCm build is not currently supported for vllm-flash-attn.")
+    message(FATAL_ERROR "ROCm build is not currently supported for nova-flash-attn.")
 else ()
     message(FATAL_ERROR "Can't find CUDA or HIP installation.")
 endif ()
 
 #
 # Query torch for additional GPU compilation flags for the given
-# `VLLM_GPU_LANG`.
-# The final set of arches is stored in `VLLM_FA_GPU_FLAGS`.
+# `NOVA_GPU_LANG`.
+# The final set of arches is stored in `NOVA_FA_GPU_FLAGS`.
 #
-get_torch_gpu_compiler_flags(VLLM_FA_GPU_FLAGS ${VLLM_GPU_LANG})
+get_torch_gpu_compiler_flags(NOVA_FA_GPU_FLAGS ${NOVA_GPU_LANG})
 
 #
 # Set nvcc parallelism.
 #
-if (NVCC_THREADS AND VLLM_GPU_LANG STREQUAL "CUDA")
-    list(APPEND VLLM_FA_GPU_FLAGS "--threads=${NVCC_THREADS}")
+if (NVCC_THREADS AND NOVA_GPU_LANG STREQUAL "CUDA")
+    list(APPEND NOVA_FA_GPU_FLAGS "--threads=${NVCC_THREADS}")
 endif ()
 
 
 # Other flags
-list(APPEND VLLM_FA_GPU_FLAGS --expt-relaxed-constexpr --expt-extended-lambda --use_fast_math)
+list(APPEND NOVA_FA_GPU_FLAGS --expt-relaxed-constexpr --expt-extended-lambda --use_fast_math)
 
 # If CUTLASS is compiled on NVCC >= 12.5, it by default uses
 # cudaGetDriverEntryPointByVersion as a wrapper to avoid directly calling the
 # driver API. This causes problems when linking with earlier versions of CUDA.
 # Setting this variable sidesteps the issue by calling the driver directly.
-list(APPEND VLLM_FA_GPU_FLAGS -DCUTLASS_ENABLE_DIRECT_CUDA_DRIVER_CALL=1)
+list(APPEND NOVA_FA_GPU_FLAGS -DCUTLASS_ENABLE_DIRECT_CUDA_DRIVER_CALL=1)
 
 # Replace instead of appending, nvcc doesn't like duplicate -O flags.
 string(REPLACE "-O2" "-O3" CMAKE_CUDA_FLAGS_RELWITHDEBINFO "${CMAKE_CUDA_FLAGS_RELWITHDEBINFO}")
@@ -134,7 +134,7 @@ if (FA2_ENABLED)
     file(GLOB FA2_GEN_SRCS "csrc/flash_attn/src/flash_fwd_*.cu")
 
     # For CUDA we set the architectures on a per file basis
-    if (VLLM_GPU_LANG STREQUAL "CUDA")
+    if (NOVA_GPU_LANG STREQUAL "CUDA")
         cuda_archs_loose_intersection(FA2_ARCHS "8.0+PTX" "${CUDA_ARCHS}")
         message(STATUS "FA2_ARCHS: ${FA2_ARCHS}")
 
@@ -144,26 +144,26 @@ if (FA2_ENABLED)
     endif()
 
     define_gpu_extension_target(
-        _vllm_fa2_C
-        DESTINATION vllm_flash_attn
-        LANGUAGE ${VLLM_GPU_LANG}
+        _nova_fa2_C
+        DESTINATION nova_flash_attn
+        LANGUAGE ${NOVA_GPU_LANG}
         SOURCES
             csrc/flash_attn/flash_api.cpp
             csrc/flash_attn/flash_api_sparse.cpp
             csrc/flash_attn/flash_api_torch_lib.cpp
             ${FA2_GEN_SRCS}
-        COMPILE_FLAGS ${VLLM_FA_GPU_FLAGS}
+        COMPILE_FLAGS ${NOVA_FA_GPU_FLAGS}
         USE_SABI 3
         WITH_SOABI)
 
-    target_include_directories(_vllm_fa2_C PRIVATE
+    target_include_directories(_nova_fa2_C PRIVATE
         csrc/flash_attn
         csrc/flash_attn/src
         csrc/common
         csrc/cutlass/include)
 
     # custom definitions
-    target_compile_definitions(_vllm_fa2_C PRIVATE
+    target_compile_definitions(_nova_fa2_C PRIVATE
         FLASHATTENTION_DISABLE_BACKWARD
         FLASHATTENTION_DISABLE_DROPOUT
         # FLASHATTENTION_DISABLE_ALIBI
@@ -226,7 +226,7 @@ if (FA3_ENABLED AND ${CMAKE_CUDA_COMPILER_VERSION} GREATER_EQUAL 12.0)
 
     # For CUDA we set the architectures on a per file basis
     # FaV3 is not yet supported in Blackwell
-    if (VLLM_GPU_LANG STREQUAL "CUDA")
+    if (NOVA_GPU_LANG STREQUAL "CUDA")
         cuda_archs_loose_intersection(FA3_ARCHS "8.0;9.0a;" "${CUDA_ARCHS}")
         message(STATUS "FA3_ARCHS: ${FA3_ARCHS}")
 
@@ -241,27 +241,27 @@ if (FA3_ENABLED AND ${CMAKE_CUDA_COMPILER_VERSION} GREATER_EQUAL 12.0)
     endif()
 
     define_gpu_extension_target(
-        _vllm_fa3_C
-        DESTINATION vllm_flash_attn
-        LANGUAGE ${VLLM_GPU_LANG}
+        _nova_fa3_C
+        DESTINATION nova_flash_attn
+        LANGUAGE ${NOVA_GPU_LANG}
         SOURCES
             hopper/flash_fwd_combine.cu
             hopper/flash_prepare_scheduler.cu
             hopper/flash_api.cpp
             hopper/flash_api_torch_lib.cpp
             ${FA3_GEN_SRCS}
-        COMPILE_FLAGS ${VLLM_FA_GPU_FLAGS}
+        COMPILE_FLAGS ${NOVA_FA_GPU_FLAGS}
         ARCHITECTURES "" # LucasW: this is ignored for cuda and set on a per-file basis
         USE_SABI 3
         WITH_SOABI)
 
-    target_include_directories(_vllm_fa3_C PRIVATE
+    target_include_directories(_nova_fa3_C PRIVATE
         hopper
         csrc/common
         csrc/cutlass/include)
 
     # custom definitions
-    target_compile_definitions(_vllm_fa3_C PRIVATE
+    target_compile_definitions(_nova_fa3_C PRIVATE
         FLASHATTENTION_DISABLE_BACKWARD
         FLASHATTENTION_DISABLE_DROPOUT
         # FLASHATTENTION_DISABLE_ALIBI
