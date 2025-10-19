@@ -1,4 +1,4 @@
-# Copy from https://github.com/vllm-project/flash-attention/blob/main/flash_attn/ops/triton/rotary.py
+# Copy from https://github.com/nova-project/flash-attention/blob/main/flash_attn/ops/triton/rotary.py
 # Copyright (c) 2023, Tri Dao.
 
 from typing import Optional, Union

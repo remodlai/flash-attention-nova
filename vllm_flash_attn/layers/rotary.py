@@ -1,4 +1,4 @@
-# Adapted from https://github.com/vllm-project/flash-attention/blob/main/flash_attn/layers/rotary.py
+# Adapted from https://github.com/nova-project/flash-attention/blob/main/flash_attn/layers/rotary.py
 # Modified lines are marked with `# modified from original` comment
 # Copyright (c) 2023, Tri Dao.
 

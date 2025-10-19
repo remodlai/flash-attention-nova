@@ -1,4 +1,4 @@
-# This file is taken from github.com/vllm-project/vllm/cmake/utils.cmake
+# This file is taken from github.com/nova-project/nova/cmake/utils.cmake
 # It contains utility functions for building PyTorch extensions with GPU support.
 # The only modification is finding the `Python` package with a specific version.
 #

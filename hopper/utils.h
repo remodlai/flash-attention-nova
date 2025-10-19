@@ -32,7 +32,7 @@ using namespace cute;
 // A wrapper for the kernel that is used to guard against compilation on
 // architectures that will never use the kernel. The purpose of this is to
 // reduce the size of the compiled binary.
-// Adapted from https://github.com/vllm-project/vllm/blob/4d29e91be84d27ca313d657eee92c067439a4c23/csrc/quantization/cutlass_w8a8/scaled_mm_c2x.cuh#L55
+// Adapted from https://github.com/nova-project/nova/blob/4d29e91be84d27ca313d657eee92c067439a4c23/csrc/quantization/cutlass_w8a8/scaled_mm_c2x.cuh#L55
 template <typename Kernel>
 struct enable_sm90_or_later : Kernel {
     template <typename... Args>
