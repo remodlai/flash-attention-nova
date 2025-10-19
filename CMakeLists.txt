@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.26)
 
-project(vllm_flash_attn LANGUAGES CXX CUDA)
+project(nova_flash_attn LANGUAGES CXX CUDA)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -96,7 +96,7 @@ if (NOT HIP_FOUND AND CUDA_FOUND)
         "${CUDA_SUPPORTED_ARCHS}" "${CUDA_ARCHS}")
     message(STATUS "CUDA supported target architectures: ${CUDA_ARCHS}")
 elseif (HIP_FOUND)
-    message(FATAL_ERROR "ROCm build is not currently supported for vllm-flash-attn.")
+    message(FATAL_ERROR "ROCm build is not currently supported for nova-flash-attn.")
 else ()
     message(FATAL_ERROR "Can't find CUDA or HIP installation.")
 endif ()
@@ -146,8 +146,8 @@ if (FA2_ENABLED)
     endif()
 
     define_gpu_extension_target(
-        _vllm_fa2_C
-        DESTINATION vllm_flash_attn
+        _nova_fa2_C
+        DESTINATION nova_flash_attn
         LANGUAGE ${NOVA_GPU_LANG}
         SOURCES
             csrc/flash_attn/flash_api.cpp
@@ -158,14 +158,14 @@ if (FA2_ENABLED)
         USE_SABI 3
         WITH_SOABI)
 
-    target_include_directories(_vllm_fa2_C PRIVATE
+    target_include_directories(_nova_fa2_C PRIVATE
         csrc/flash_attn
         csrc/flash_attn/src
         csrc/common
         csrc/cutlass/include)
 
     # custom definitions
-    target_compile_definitions(_vllm_fa2_C PRIVATE
+    target_compile_definitions(_nova_fa2_C PRIVATE
         FLASHATTENTION_DISABLE_BACKWARD
         FLASHATTENTION_DISABLE_DROPOUT
         # FLASHATTENTION_DISABLE_ALIBI
@@ -243,8 +243,8 @@ if (FA3_ENABLED AND ${CMAKE_CUDA_COMPILER_VERSION} GREATER_EQUAL 12.0)
     endif()
 
     define_gpu_extension_target(
-        _vllm_fa3_C
-        DESTINATION vllm_flash_attn
+        _nova_fa3_C
+        DESTINATION nova_flash_attn
         LANGUAGE ${NOVA_GPU_LANG}
         SOURCES
             hopper/flash_fwd_combine.cu
@@ -257,13 +257,13 @@ if (FA3_ENABLED AND ${CMAKE_CUDA_COMPILER_VERSION} GREATER_EQUAL 12.0)
         USE_SABI 3
         WITH_SOABI)
 
-    target_include_directories(_vllm_fa3_C PRIVATE
+    target_include_directories(_nova_fa3_C PRIVATE
         hopper
         csrc/common
         csrc/cutlass/include)
 
     # custom definitions
-    target_compile_definitions(_vllm_fa3_C PRIVATE
+    target_compile_definitions(_nova_fa3_C PRIVATE
         FLASHATTENTION_DISABLE_BACKWARD
         FLASHATTENTION_DISABLE_DROPOUT
         # FLASHATTENTION_DISABLE_ALIBI
