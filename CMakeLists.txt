@@ -8,7 +8,7 @@ set(FA2_ENABLED ON)
 set(FA3_ENABLED ON)
 
 # CUDA by default, can be overridden by using -DNOVA_TARGET_DEVICE=... (used by setup.py)
-set(NOVA_TARGET_DEVICE "cuda" CACHE STRING "Target device backend for Nova")
+set(NOVA_TARGET_DEVICE "cuda" CACHE STRING "Target device backend for NOVA")
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 message(STATUS "Target device: ${NOVA_TARGET_DEVICE}")
@@ -19,7 +19,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/utils.cmake)
 set(ignoreMe "${NOVA_PYTHON_PATH}")
 
 # Supported python versions. These should be kept in sync with setup.py.
-set(PYTHON_SUPPORTED_VERSIONS "3.9" "3.10" "3.11" "3.12" "3.13")
+set(PYTHON_SUPPORTED_VERSIONS "3.10" "3.11" "3.12" "3.13")
 
 # Supported NVIDIA architectures.
 set(CUDA_SUPPORTED_ARCHS "8.0;8.6;8.9;9.0")
@@ -39,7 +39,7 @@ set(HIP_SUPPORTED_ARCHS "gfx906;gfx908;gfx90a;gfx940;gfx941;gfx942;gfx1030;gfx11
 # rather than an error.
 #
 # Note: these should be kept in sync with the torch version in setup.py.
-# Likely should also be in sync with the Nova version.
+# Likely should also be in sync with the NOVA version.
 #
 set(TORCH_SUPPORTED_VERSION_CUDA "2.4.0")
 

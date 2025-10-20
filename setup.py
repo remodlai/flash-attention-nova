@@ -299,7 +299,7 @@ setup(
     author="Nova Team",
     description="Forward-only flash-attn",
     long_description=f"Forward-only flash-attn package built for PyTorch {PYTORCH_VERSION} and CUDA {MAIN_CUDA_VERSION}",
-    url="https://github.com/nova-project/flash-attention.git",
+    url="https://github.com/remodlai/flash-attention-nova.git",
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: BSD License",

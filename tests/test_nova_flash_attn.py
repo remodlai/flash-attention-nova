@@ -1,6 +1,6 @@
 #
 # This file is copied verbatim from Nova:
-# https://github.com/nova-project/nova/blob/main/tests/kernels/test_flash_attn.py
+# https://github.com/vllm-project/vllm/blob/main/tests/kernels/test_flash_attn.py
 #
 
 import math
