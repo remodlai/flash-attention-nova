@@ -37,6 +37,10 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv pip install --system torch torchvision \
         --extra-index-url https://download.pytorch.org/whl/cu$(echo $CUDA_VERSION | cut -d. -f1,2 | tr -d '.')
 
+# Install build dependencies
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv pip install --system packaging wheel setuptools ninja cmake
+
 # Copy source
 COPY . .
 
