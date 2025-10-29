@@ -52,7 +52,7 @@ RUN --mount=type=ssh \
 
 # Build environment variables
 ARG MAX_JOBS=32
-ARG NVCC_THREADS=8
+ARG NVCC_THREADS=16
 ARG NOVA_TARGET_DEVICE="cuda"
 ARG CMAKE_BUILD_TYPE="Release"
 ARG VERBOSE="0"
@@ -72,7 +72,7 @@ ARG SCCACHE_S3_NO_CREDENTIALS=1
 # Build wheel with sccache
 RUN --mount=type=cache,target=/root/.cache/uv \
     if [ "$USE_SCCACHE" = "1" ]; then \
-        uv pip install --system sccache && \
+        uv pip install --system pip sccache && \
         export SCCACHE_BUCKET=${SCCACHE_BUCKET_NAME} && \
         export SCCACHE_REGION=${SCCACHE_REGION_NAME} && \
         export SCCACHE_S3_NO_CREDENTIALS=${SCCACHE_S3_NO_CREDENTIALS} && \
@@ -80,7 +80,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
         export CMAKE_CXX_COMPILER_LAUNCHER=sccache && \
         export CMAKE_CUDA_COMPILER_LAUNCHER=sccache && \
         sccache --show-stats && \
-        python3 setup.py bdist_wheel --dist-dir=dist && \
+        python3 -m pip wheel --no-build-isolation -vv --no-deps --wheel-dir=dist . && \
         sccache --show-stats; \
     else \
         python3 setup.py bdist_wheel --dist-dir=dist; \
