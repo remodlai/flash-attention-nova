@@ -1,6 +1,6 @@
 # Flash Attention Nova - Wheel Build Dockerfile
 # syntax=docker/dockerfile:1.4
-ARG CUDA_VERSION=12.9
+ARG CUDA_VERSION=12.9.1
 ARG PYTHON_VERSION=3.12
 
 FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu22.04 AS base
