@@ -6,13 +6,13 @@ steps:
       queue: "cpu_queue_postmerge"
     commands:
       - export AWS_ACCESS_KEY_ID=$(buildkite-agent secret get AWS_ACCESS_KEY_ID)
-      - export AWS_SECRET_ACCESS_KEY=$(buildkite-agent secret get AWS_SECRET_ACCESS_KEY)
+      - export AWS_SECRET_ACCESS_KEY=$(buildkite-agent secret get AWS_SECRET_KEY)
       - "pip install modal"
       - "export MODAL_TOKEN_ID=$(buildkite-agent secret get MODAL_TOKEN_ID)"
       - "export MODAL_TOKEN_SECRET=$(buildkite-agent secret get MODAL_TOKEN_SECRET)"
       - "modal token set --token-id \"$${MODAL_TOKEN_ID}\" --token-secret \"$${MODAL_TOKEN_SECRET}\" --profile=remodlai"
       - "modal profile activate remodlai"
-      - "DOCKER_BUILDKIT=1 docker build --build-arg MAX_JOBS=32 --build-arg NVCC_THREADS=16 --build-arg CUDA_VERSION=12.8 --build-arg TORCH_CUDA_ARCH_LIST='8.0 8.6 8.9 9.0 9.0a' --tag flash-attn-ci:build-image --progress plain -f Dockerfile ."
+      - "DOCKER_BUILDKIT=1 docker build --ssh default --build-arg MAX_JOBS=32 --build-arg NVCC_THREADS=16 --build-arg CUDA_VERSION=12.8 --build-arg TORCH_CUDA_ARCH_LIST='8.0 8.6 8.9 9.0 9.0a' --tag flash-attn-ci:build-image --progress plain -f Dockerfile ."
       - "mkdir -p artifacts"
       - "docker run --rm -v $(pwd)/artifacts:/artifacts_host flash-attn-ci:build-image bash -c 'cp -r dist /artifacts_host && chmod -R a+rw /artifacts_host'"
       - "bash .buildkite/scripts/upload-wheels.sh"
@@ -34,12 +34,12 @@ steps:
       queue: "cpu_queue_postmerge"
     commands:
       - "export AWS_ACCESS_KEY_ID=$(buildkite-agent secret get AWS_ACCESS_KEY_ID)"
-      - export AWS_SECRET_ACCESS_KEY=$(buildkite-agent secret get AWS_SECRET_ACCESS_KEY)
+      - export AWS_SECRET_ACCESS_KEY=$(buildkite-agent secret get AWS_SECRET_KEY)
       - "pip install modal"
       - "export MODAL_TOKEN_ID=$(buildkite-agent secret get MODAL_TOKEN_ID)"
       - "export MODAL_TOKEN_SECRET=$(buildkite-agent secret get MODAL_TOKEN_SECRET)"
       - "modal token set --token-id \"$${MODAL_TOKEN_ID}\" --token-secret \"$${MODAL_TOKEN_SECRET}\" --profile=remodlai"
-      - "DOCKER_BUILDKIT=1 docker build --build-arg MAX_JOBS=32 --build-arg NVCC_THREADS=16 --build-arg CUDA_VERSION=12.9 --build-arg TORCH_CUDA_ARCH_LIST='8.0 8.6 8.9 9.0 9.0a' --tag flash-attn-ci:build-image --progress plain -f Dockerfile ."
+      - "DOCKER_BUILDKIT=1 docker build --ssh default --build-arg MAX_JOBS=32 --build-arg NVCC_THREADS=16 --build-arg CUDA_VERSION=12.9 --build-arg TORCH_CUDA_ARCH_LIST='8.0 8.6 8.9 9.0 9.0a' --tag flash-attn-ci:build-image --progress plain -f Dockerfile ."
       - "mkdir -p artifacts"
       - "docker run --rm -v $(pwd)/artifacts:/artifacts_host flash-attn-ci:build-image bash -c 'cp -r dist /artifacts_host && chmod -R a+rw /artifacts_host'"
       - "bash .buildkite/scripts/upload-wheels.sh"
