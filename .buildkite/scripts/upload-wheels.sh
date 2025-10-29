@@ -16,5 +16,5 @@ for wheel in artifacts/dist/*.whl; do
     fi
 done
 
-echo "✅ All wheels uploaded successfully"
+echo "✅ All flash-attention-nova wheels uploaded successfully"
 
