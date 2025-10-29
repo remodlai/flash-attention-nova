@@ -24,7 +24,7 @@ steps:
       - MODAL_TOKEN_ID
       - MODAL_TOKEN_SECRET
       - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
+      - AWS_SECRET_KEY
       - GITHUB_TOKEN
 
   - label: "Build flash-attention-nova wheel - CUDA 12.9"
@@ -53,6 +53,6 @@ steps:
       - MODAL_TOKEN_ID
       - MODAL_TOKEN_SECRET
       - AWS_ACCESS_KEY_ID
-      - AWS_SECRET_ACCESS_KEY
+      - AWS_SECRET_KEY
       - GITHUB_TOKEN
 
